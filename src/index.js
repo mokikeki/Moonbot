@@ -240,6 +240,23 @@ async function completeOnboarding(chatId) {
       }
     );
   }
+function completeOnboarding(chatId) {
+  const data = onboardingState[chatId];
+  data.step = STEPS.COMPLETE;
+
+  const { dateOfBirth, timeOfBirth, placeOfBirth, guidanceTopic } = data.answers;
+
+  const reading = [
+    `Thanks for sharing, Moon Seeker ✨`,
+    `Based on your details (${dateOfBirth}, ${timeOfBirth}, ${placeOfBirth}), your current energy points toward ${guidanceTopic.toLowerCase()}.`,
+    'This is a season to trust your intuition, take one grounded step forward, and stay open to meaningful signs.'
+  ].join('\n\n');
+
+  bot.sendMessage(chatId, reading, {
+    reply_markup: {
+      remove_keyboard: true
+    }
+  });
 }
 
 bot.onText(/^\/start$/, (msg) => {
@@ -248,6 +265,7 @@ bot.onText(/^\/start$/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
+bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   const text = (msg.text || '').trim();
 
@@ -292,6 +310,7 @@ bot.on('message', async (msg) => {
 
       state.answers.guidanceTopic = text;
       await completeOnboarding(chatId);
+      completeOnboarding(chatId);
       break;
 
     case STEPS.COMPLETE:

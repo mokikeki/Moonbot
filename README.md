@@ -7,6 +7,7 @@ Moonbot is a simple Telegram bot with an onboarding flow that collects:
 - Primary guidance area (Love, Career, Money, Personal growth, Spirituality)
 
 After onboarding, it calls the Free Astrology API planets endpoint and returns key placements.
+It stores answers **in memory** for now and then returns a short welcome reading.
 
 ## Prerequisites
 - Node.js 18+ (or any modern Node.js version)
@@ -28,6 +29,9 @@ After onboarding, it calls the Free Astrology API planets endpoint and returns k
    ```env
    TELEGRAM_BOT_TOKEN=your_real_token_here
    ASTROLOGY_API_KEY=your_real_api_key_here
+3. Add your token to `.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=your_real_token_here
    ```
 
 ## Run locally
@@ -46,6 +50,7 @@ Then open Telegram, start a chat with your bot, and send:
 ```
 
 ## Onboarding + API behavior
+## Onboarding flow behavior
 1. `/start` sends:
    > Hi, I’m Moonbot — your private AI astrology guide. I’ll ask a few questions to personalize your experience.
 2. Moonbot asks date of birth.
@@ -65,3 +70,7 @@ Then open Telegram, start a chat with your bot, and send:
 ## Notes
 - State is in-memory only. Restarting the process clears all user onboarding data.
 - Place of birth is currently collected but not geocoded yet; API uses the temporary Cascais test coordinates.
+6. Moonbot sends a short welcome reading.
+
+## Notes
+- State is in-memory only. Restarting the process clears all user onboarding data.
