@@ -210,15 +210,18 @@ async function completeOnboarding(chatId) {
   try {
     const apiData = await fetchPlanetData(dateOfBirth, timeOfBirth);
     const placements = extractPlacements(apiData);
-    const sun = placements.Sun || 'Unavailable';
-    const moon = placements.Moon || 'Unavailable';
-    const ascendant = placements.Ascendant || 'Unavailable';
-    const lines = [
-      'I calculated your chart:',
-      `Sun: ${sun}`,
-      `Moon: ${moon}`,
-      `Ascendant: ${ascendant}`
-    ];
+
+    const lines = ["I’ve calculated your chart."];
+
+    for (const name of PLACEMENTS_TO_SHOW) {
+      if (placements[name]) {
+        lines.push(`- ${name}: ${placements[name]}`);
+      }
+    }
+
+    if (lines.length === 1) {
+      lines.push('- I could not find major placements in the API response.');
+    }
 
     await bot.sendMessage(chatId, lines.join('\n'), {
       reply_markup: {
@@ -237,6 +240,23 @@ async function completeOnboarding(chatId) {
       }
     );
   }
+function completeOnboarding(chatId) {
+  const data = onboardingState[chatId];
+  data.step = STEPS.COMPLETE;
+
+  const { dateOfBirth, timeOfBirth, placeOfBirth, guidanceTopic } = data.answers;
+
+  const reading = [
+    `Thanks for sharing, Moon Seeker ✨`,
+    `Based on your details (${dateOfBirth}, ${timeOfBirth}, ${placeOfBirth}), your current energy points toward ${guidanceTopic.toLowerCase()}.`,
+    'This is a season to trust your intuition, take one grounded step forward, and stay open to meaningful signs.'
+  ].join('\n\n');
+
+  bot.sendMessage(chatId, reading, {
+    reply_markup: {
+      remove_keyboard: true
+    }
+  });
 }
 
 bot.onText(/^\/start$/, (msg) => {
@@ -244,7 +264,8 @@ bot.onText(/^\/start$/, (msg) => {
   startOnboarding(chatId);
 });
 
-async function handleMessage(msg) {
+bot.on('message', async (msg) => {
+bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   const text = (msg.text || '').trim();
 
@@ -289,6 +310,7 @@ async function handleMessage(msg) {
 
       state.answers.guidanceTopic = text;
       await completeOnboarding(chatId);
+      completeOnboarding(chatId);
       break;
 
     case STEPS.COMPLETE:
@@ -300,9 +322,7 @@ async function handleMessage(msg) {
       delete onboardingState[chatId];
       break;
   }
-}
-
-bot.on('message', handleMessage);
+});
 
 bot.on('polling_error', (error) => {
   console.error('Polling error:', error.message);
